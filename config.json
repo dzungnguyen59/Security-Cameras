@@ -1,0 +1,22 @@
+{
+    "models": {
+        "yolo": "weights/yolov8n-pose.pt",
+        "tracker": "weights/osnet_x0_25_msmt17.pt",
+        "weapon": "weights/best.pt"
+    },
+    "settings": {
+        "fps_limit": 15,
+        "reid_max_score": 0.55,
+        "grid_columns": 2
+    },
+    "cameras": [
+        {
+            "id": "cam1", 
+            "src": "http://192.168.5.66:8080/video"
+        },
+        {
+            "id": "cam2", 
+            "src": "http://192.168.5.144:8080/video"
+        }
+    ]
+}
