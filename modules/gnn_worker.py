@@ -108,13 +108,13 @@ class GlobalGNNWorker(threading.Thread):
                         
                         # CHUẨN BỊ DỮ LIỆU CHO FAISS (Ép kiểu float32 và shape 2D)
                         feat_np = np.array(feat, dtype=np.float32).reshape(1, -1)
-                        # PHÉP THUẬT NẰM Ở ĐÂY: Chuẩn hóa chiều dài vector về 1
+                        # Chuẩn hóa chiều dài vector về 1
                         faiss.normalize_L2(feat_np)
                         
                         matched_id = None 
                         max_score = 0.8 
 
-                        # SO KHỚP VỚI FAISS (Siêu tốc)
+                        # SO KHỚP VỚI FAISS 
                         if self.index.ntotal > 0:
                             scores, neighbors = self.index.search(feat_np, k=1)
                             best_score = float(scores[0][0])

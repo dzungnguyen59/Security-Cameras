@@ -2,7 +2,7 @@
     "models": {
         "yolo": "weights/yolov8n-pose.pt",
         "tracker": "weights/osnet_x0_25_msmt17.pt",
-        "weapon": "weights/best.pt"
+        "weapon": "weights/weapon_dectection.pt"
     },
     "settings": {
         "fps_limit": 15,
@@ -12,7 +12,7 @@
     "cameras": [
         {
             "id": "cam1", 
-            "src": "http://192.168.5.66:8080/video"
+            "src": "http://192.168.5.219:4747/video"
         },
         {
             "id": "cam2", 

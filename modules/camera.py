@@ -3,7 +3,7 @@ import threading
 import time
 import numpy as np
 from pathlib import Path
-from boxmot import create_tracker
+from boxmot import DeepOcSort
 
 class Camera:
     def __init__(self, src, cam_id):
@@ -127,13 +127,12 @@ class ManagedCamera(Camera): # Kế thừa từ class Camera cũ của bạn
     def __init__(self, src, cam_id):
         super().__init__(src, cam_id)
         # CẤP ĐỘ 1: Local Tracker cho từng camera
-        self.tracker = create_tracker(
-                    tracker_type='boosttrack', # Có thể đổi thành 'deepocsort' hoặc 'strongsort' nếu muốn
-                    tracker_config=None,
-                    reid_weights=Path('weights/osnet_x0_25_msmt17.pt'), # Pass đúng file weights vào đây
-                    device='cuda:0',
-                    half=False, # Tránh lỗi Float16 trên một số đời GPU
-                )        
+        self.tracker = DeepOcSort(
+            reid_weights=Path('weights/osnet_x0_25_msmt17.pt'), 
+            device='cuda:0',
+            half=False,                                         
+            max_age=30
+        )
         self.local_tracks = []
         
 
