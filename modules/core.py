@@ -5,7 +5,7 @@ from ultralytics import YOLO
 
 # Import các module nội bộ
 from modules.camera import ManagedCamera
-from modules.gnn_worker import GlobalGNNWorker
+from modules.gnn_worker import GlobalReIDWorker
 from modules.utils import make_grid 
 
 class TrackingSystem:
@@ -19,7 +19,7 @@ class TrackingSystem:
         self.yolo_weapon = YOLO(self.config["models"]["weapon"])
         
         # 2. Khởi tạo luồng GNN (Worker) - Đây là nơi lưu trữ "Sổ đen" Global
-        self.gnn_worker = GlobalGNNWorker()
+        self.gnn_worker = GlobalReIDWorker()
         self.gnn_worker.start()
         
         # 3. Khởi tạo danh sách Camera
