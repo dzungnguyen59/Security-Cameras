@@ -5,7 +5,7 @@ from ultralytics import YOLO
 
 # Import các module nội bộ
 from modules.camera import ManagedCamera
-from modules.gnn_worker import GlobalReIDWorker
+from modules.globalReIDworker import GlobalReIDWorker
 from modules.utils import make_grid 
 
 class TrackingSystem:
@@ -18,9 +18,9 @@ class TrackingSystem:
         self.yolo = YOLO(self.config["models"]["yolo"])
         self.yolo_weapon = YOLO(self.config["models"]["weapon"])
         
-        # 2. Khởi tạo luồng GNN (Worker) - Đây là nơi lưu trữ "Sổ đen" Global
-        self.gnn_worker = GlobalReIDWorker()
-        self.gnn_worker.start()
+        # 2. Khởi tạo luồng ReID (Worker) - Đây là nơi lưu trữ "Sổ đen" Global
+        self.ReID_worker = GlobalReIDWorker()
+        self.ReID_worker.start()
         
         # 3. Khởi tạo danh sách Camera
         self.cameras = []
@@ -72,7 +72,7 @@ class TrackingSystem:
                 results_weapon = self.yolo_weapon.predict(imgs, conf=0.4, device="0", verbose=False) 
 
                 frames_to_display = []
-                data_for_gnn = []
+                data_for_reID = []
 
                 for i, cam in enumerate(active_cams):
                     try:
@@ -148,12 +148,12 @@ class TrackingSystem:
                                     break
 
                     # BƯỚC 2: LOGIC GÁN TRẠNG THÁI VÀO GLOBAL ID
-                    cam_gnn_data = {'cam_id': cam.cam_id, 'tracks': []}
+                    cam_ReID_data = {'cam_id': cam.cam_id, 'tracks': []}
                     
                     for t_coord, t_info in zip(tracks, track_info):
                         x1, y1, x2, y2, track_id = t_coord[:5]
                         local_track_id = int(track_id)
-                        global_id = self.gnn_worker.global_id_map.get((cam.cam_id, local_track_id), f"L-{local_track_id}")
+                        global_id = self.ReID_worker.global_id_map.get((cam.cam_id, local_track_id), f"L-{local_track_id}")
                         
                         uid_key = f"{cam.cam_id}_{local_track_id}"
                         if uid_key not in self.weapon_history: 
@@ -172,8 +172,8 @@ class TrackingSystem:
                             if cur_w: # Lưu tên vũ khí vào trí nhớ của Camera
                                 self.local_armed_bank[uid_key] = cur_w
 
-                        # Truyền SỔ ĐEN LOCAL lên GNN 
-                        cam_gnn_data['tracks'].append({
+                        # Truyền SỔ ĐEN LOCAL lên ReID 
+                        cam_ReID_data['tracks'].append({
                             'id': t_info['id'], 
                             'feature': t_info['feature'],
                             'weapon_type': self.local_armed_bank.get(uid_key) 
@@ -183,7 +183,7 @@ class TrackingSystem:
                         final_weapon = None
                         
                         if isinstance(global_id, int):
-                            final_weapon = self.gnn_worker.is_armed(global_id)
+                            final_weapon = self.ReID_worker.is_armed(global_id)
                         
                         if final_weapon is None:
                             final_weapon = self.local_armed_bank.get(uid_key)
@@ -200,11 +200,11 @@ class TrackingSystem:
                         cv2.putText(f, label, (int(x1), int(y1) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
 
                     frames_to_display.append(f)
-                    data_for_gnn.append(cam_gnn_data)
+                    data_for_reID.append(cam_ReID_data)
                 
-                # Đồng bộ với GNN mỗi 20 frame
+                # Đồng bộ với ReID mỗi 20 frame
                 if frame_count % 20 == 0:
-                    self.gnn_worker.update_features(data_for_gnn)
+                    self.ReID_worker.update_features(data_for_reID)
 
                 grid_view = make_grid(frames_to_display, cols=self.grid_cols)
                 if grid_view is not None:
