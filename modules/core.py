@@ -42,6 +42,8 @@ class TrackingSystem:
         self.MIN_FRAMES = 3      # Đếm đủ 3 frame trong 5s để xác nhận
         self.local_armed_bank = {}  # Sổ đen tạm thời của Camera
 
+        self.min_dist = 40 # Khoảng cách tối đa từ cổ tay đến box vũ khí để xác định "đang cầm"
+
     def load_config(self, path):
         try:
             with open(path, 'r', encoding='utf-8') as f:
@@ -129,7 +131,7 @@ class TrackingSystem:
                         cv2.putText(f, w_type.upper(), (wx1, wy1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 165, 255), 2)
 
                         holding_wrist = None
-                        min_dist = 40 
+                        min_dist = self.min_dist
                         for kx, ky in wrists:
                             dx = max(wx1 - kx, 0, kx - wx2)
                             dy = max(wy1 - ky, 0, ky - wy2)
@@ -211,7 +213,7 @@ class TrackingSystem:
                     prev_time = curr_t
                     cv2.rectangle(grid_view, (0, 0), (180, 40), (0, 0, 0), -1)
                     cv2.putText(grid_view, f"FPS: {fps_display:.1f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-                    cv2.imshow("Robbery Detection System", grid_view)
+                    cv2.imshow("Security Cameras", grid_view)
 
                 if cv2.waitKey(1) & 0xFF == ord('q'): break
 
