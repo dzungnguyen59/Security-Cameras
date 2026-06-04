@@ -1,6 +1,6 @@
-# Hệ Thống Nhận Diện Vũ Khí & Theo Dõi Đa Camera (GNN Tracking System)
+# Hệ Thống Nhận Diện Vũ Khí & Theo Dõi Đa Camera
 
-Hệ thống giám sát an ninh thông minh xử lý luồng video từ nhiều camera cùng lúc. Bằng việc kết hợp nhận diện vũ khí (YOLO), phân tích hành vi cơ thể (YOLO-Pose) và Mạng nơ-ron đồ thị (GNN - Graph Neural Network), hệ thống có khả năng theo dõi đối tượng tình nghi liên tục xuyên suốt các góc máy khác nhau.
+Hệ thống giám sát an ninh thông minh xử lý luồng video từ nhiều camera cùng lúc. Bằng việc kết hợp nhận diện vũ khí (YOLO), phân tích hành vi cơ thể (YOLO-Pose) ,so sánh các features nhận được để đồng bộ ID, hệ thống có khả năng theo dõi đối tượng tình nghi liên tục xuyên suốt các góc máy khác nhau.
 
 ---
 
@@ -13,10 +13,10 @@ Hệ thống không chỉ dừng lại ở việc "thấy vũ khí là báo đ�
    * Tính toán khoảng cách không gian giữa cổ tay và Bounding Box của vũ khí (`weapon-detect`). Hệ thống chỉ ghi nhận "có vũ khí" khi phát hiện đối tượng thực sự ĐANG CẦM vũ khí đó.
 2. **Cơ chế xác thực thời gian thực (Time-Window Validation):**
    * Tích hợp bộ đếm khung hình: Đối tượng phải cầm vũ khí ít nhất `3 frames` trong vòng `5 giây` thì hệ thống mới chính thức gắn cờ báo động (Armed). Giúp loại bỏ hoàn toàn nhiễu do AI nhận diện nhầm trong tích tắc.
-3. **Đồng bộ Sổ đen Toàn cục (Global GNN Blacklist):**
+3. **Đồng bộ Sổ đen Toàn cục (Global ReID Blacklist):**
    * Mỗi camera duy trì một bộ nhớ tạm (Local Armed Bank).
-   * Cứ mỗi 20 frames, các camera sẽ gửi đặc trưng nhận dạng (Features) của kẻ tình nghi lên `GNN Worker`. 
-   * GNN Worker đóng vai trò là "Bộ não trung tâm", tính toán độ tương đồng đồ thị để hợp nhất ID. Nếu Camera A thấy kẻ gian giấu súng đi và bước sang Camera B, Camera B lập tức nhận diện được ID này và giữ nguyên viền đỏ cảnh báo (Armed) dù không hề thấy vũ khí.
+   * Cứ mỗi 20 frames, các camera sẽ gửi đặc trưng nhận dạng (Features) của kẻ tình nghi lên `GlobalReIDWorker`. 
+   * GlobalReIDWorker đóng vai trò là "Bộ não trung tâm", tính toán độ tương đồng đồ thị để hợp nhất ID. Nếu Camera A thấy kẻ gian giấu súng đi và bước sang Camera B, Camera B lập tức nhận diện được ID này và giữ nguyên viền đỏ cảnh báo (Armed) dù không hề thấy vũ khí.
 4. **Tối ưu hóa đa luồng (Multi-threading & FPS Limit):**
    * Các luồng RTSP/Webcam được quản lý độc lập bằng Threading, tránh hiện tượng nghẽn cổ chai (bottleneck) khi một camera bị mất kết nối.
 
